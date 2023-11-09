@@ -1,0 +1,43 @@
+---
+- name: Install Instana agent
+  hosts: all
+  vars: 
+    INSTANA_AGENT_KEY=""
+  tasks:
+  - name: Assert the system is red hat enterprise linux
+    ansible.builtin.assert:
+      that:
+        - ansible_distribution == 'RedHat'
+  
+  - name: Copy the templates/instana-yum-repo.j2 to the /etc/yum.repos.d/ on the target hosts
+    ansible.builtin.template:
+      src: templates/instana-yum-repo.j2
+      dest: /etc/yum.repos.d/Instana-Product.repo
+    become: true
+
+  - name: Import the RPM gpg key from https://packages.instana.io/Instana.gpg
+    ansible.builtin.rpm_key:
+      key: https://packages.instana.io/Instana.gpg
+      state: present
+    become: true
+  
+  - name: Install the rpm package instana-agent-static
+    become: true
+    ansible.builtin.package:
+      name: instana-agent-static
+      state: present
+  
+  - name: Install the rpm instana-agent-dynamic
+    become: true
+    ansible.builtin.package:
+      name: instana-agent-dynamic
+      state: present
+  
+  - name: Start the instana-agent service
+    ansible.builtin.service:
+      name: instana-agent
+      state: started
+      enabled: true
+    become: true
+  
+  
