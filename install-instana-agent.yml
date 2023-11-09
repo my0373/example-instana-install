@@ -2,7 +2,8 @@
 - name: Install Instana agent
   hosts: all
   vars: 
-    INSTANA_AGENT_KEY=""
+    INSTANA_AGENT_KEY="please_add_my_agent_key"
+    INSTANA_GPG_KEY="https://packages.instana.io/Instana.gpg"
   tasks:
   - name: Assert the system is red hat enterprise linux
     ansible.builtin.assert:
@@ -15,9 +16,9 @@
       dest: /etc/yum.repos.d/Instana-Product.repo
     become: true
 
-  - name: Import the RPM gpg key from https://packages.instana.io/Instana.gpg
+  - name: "Import the RPM gpg key from {{ INSTANA_GPG_KEY }}"
     ansible.builtin.rpm_key:
-      key: https://packages.instana.io/Instana.gpg
+      key: "{{ INSTANA_GPG_KEY }}"
       state: present
     become: true
   
