@@ -4,6 +4,11 @@
   vars: 
     INSTANA_AGENT_KEY="please_add_my_agent_key"
     INSTANA_GPG_KEY="https://packages.instana.io/Instana.gpg"
+    notify_hostname = "notify.test.local"
+    notify_port = "8080"
+    notify_server_username = "myusername"
+    notify_server_password = "redhat123"
+    notify_uri = "url/path/to/api"
   tasks:
   - name: Assert the system is red hat enterprise linux
     ansible.builtin.assert:
@@ -40,5 +45,20 @@
       state: started
       enabled: true
     become: true
+
+  - name: Call an api with a json payload with a parameter of hostname
+    ansible.builtin.uri:
+      url: http://{{ notify_hostname }}:{{ notify_port }}/{{ notify_uri }}
+      method: POST
+      user: "{{ notify_server_username }}"
+      password: "{{ notify_server_password }}"
+      body:
+        hostname: "{{ inventory_hostname }}"
+      force_basic_auth: true
+      status_code: 200
+      body_format: json
+      return_content: true
+    register: api_result
+  
   
   
